@@ -17,7 +17,11 @@
 import webapp2
 import cgi
 
+
+# Functions to be used by all classes
 def alphabet_position(letter):
+    """Returns the relative position of a particular character
+    """
     alphabet = "abcdefghijklmnopqrstuvwxyz"
     pos = 0
     for ltr in alphabet:
@@ -26,8 +30,9 @@ def alphabet_position(letter):
         pos += 1
     return pos
 
-
 def rotate_character(char, rot):
+    """Returns the character that is the result of moving char by rot
+    """
     alphabet = "abcdefghijklmnopqrstuvwxyz"
     if char.lower() not in alphabet:
         return char
@@ -39,12 +44,16 @@ def rotate_character(char, rot):
     return newChar
 
 def encrypt(text, rot):
+    """Takes a string and rotates each character by a given amount, returns a new string
+    """
     newText = ""
     for ltr in text:
         newChar = rotate_character(ltr, rot)
         newText += newChar
     return newText
 
+
+# Building the bones of the html for the page
 html_head ="""
 <!DOCTYPE html>
 <html>
@@ -61,16 +70,18 @@ class MainHandler(webapp2.RequestHandler):
     """Builds the landing page, and handles any returns to it.
     """
     def get(self):
+        # Building the initial form for the user to fill out
         form = """
         <h3>Enter your text below:</h3>
-        <div>
             <form id ="encryptForm" method="POST" action="/caesar">
+                <div>
+                <label for="rot">Rotate:</label>
                 <input name="rot" type="text"></input>
+                </div>
                 <textarea type="text" name="text"></textarea>
                 <br>
                 <input type="submit"/>
             </form>
-        </div>
         """
         response = html_head + form + html_tail
         self.response.write(response)

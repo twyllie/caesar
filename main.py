@@ -15,11 +15,78 @@
 # limitations under the License.
 #
 import webapp2
+import cgi
+
+def alphabet_position(letter):
+    alphabet = "abcdefghijklmnopqrstuvwxyz"
+    pos = 0
+    for ltr in alphabet:
+        if ltr == letter.lower():
+            return pos
+        pos += 1
+    return pos
+
+
+def rotate_character(char, rot):
+    alphabet = "abcdefghijklmnopqrstuvwxyz"
+    if char.lower() not in alphabet:
+        return char
+    mod = (alphabet_position(char) + rot) % len(alphabet)
+    if char in alphabet:
+        newChar = chr(97 + mod)
+    else:
+        newChar = chr(65 + mod)
+    return newChar
+
+def encrypt(text, rot):
+    newText = ""
+    for ltr in text:
+        newChar = rotate_character(ltr, rot)
+        newText += newChar
+    return newText
+
+html_head ="""
+<!DOCTYPE html>
+<html>
+    <title>Caesar's Legacy</title>
+    <body>
+"""
+html_tail ="""
+    </body>
+</html>
+"""
+
 
 class MainHandler(webapp2.RequestHandler):
+    """Builds the landing page, and handles any returns to it.
+    """
     def get(self):
-        self.response.write('Hello world!')
+        form = """
+        <h3>Enter your text below:</h3>
+        <div>
+            <form id ="encryptForm" method="POST" action="/caesar">
+                <input name="rot" type="text"></input>
+                <textarea type="text" name="text"></textarea>
+                <br>
+                <input type="submit"/>
+            </form>
+        </div>
+        """
+        response = html_head + form + html_tail
+        self.response.write(response)
+
+class CaesarHandler(webapp2.RequestHandler):
+    """Handles the data sent through the encryptForm.
+    """
+    def post(self):
+        txt = cgi.escape(self.request.get("text"))
+        rot = int(self.request.get("rot"))
+        etxt = encrypt(txt, rot)
+        response = html_head + "<p>" + etxt + "</p>" + html_tail
+        self.response.write(response)
+
 
 app = webapp2.WSGIApplication([
-    ('/', MainHandler)
+    ('/', MainHandler),
+    ('/caesar', CaesarHandler)
 ], debug=True)

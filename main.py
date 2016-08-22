@@ -70,15 +70,14 @@ class MainHandler(webapp2.RequestHandler):
     """Builds the landing page, and handles any returns to it.
     """
     def get(self):
-        # Building the initial form for the user to fill out
         form = """
         <h3>Enter your text below:</h3>
-            <form id ="encryptForm" method="POST" action="/caesar">
+            <form id ="encryptForm" method="POST" action="/">
                 <div>
-                <label for="rot">Rotate:</label>
+                <label for="rot">Rotate by:</label>
                 <input name="rot" type="text"></input>
                 </div>
-                <textarea type="text" name="text"></textarea>
+                <textarea name="text" rows="20" cols="60"></textarea>
                 <br>
                 <input type="submit"/>
             </form>
@@ -86,18 +85,25 @@ class MainHandler(webapp2.RequestHandler):
         response = html_head + form + html_tail
         self.response.write(response)
 
-class CaesarHandler(webapp2.RequestHandler):
-    """Handles the data sent through the encryptForm.
-    """
     def post(self):
         txt = cgi.escape(self.request.get("text"))
         rot = int(self.request.get("rot"))
         etxt = encrypt(txt, rot)
-        response = html_head + "<p>" + etxt + "</p>" + html_tail
+        form = """
+        <h3>Enter your text below:</h3>
+            <form id ="encryptForm" method="POST" action="/">
+                <div>
+                <label for="rot">Rotate by:</label>
+                <input name="rot" type="text"></input>
+                </div>
+                <textarea name="text" rows="20" cols="60">{}</textarea>
+                <br>
+                <input type="submit"/>
+            </form>
+        """.format(etxt)
+        response = html_head + form + html_tail
         self.response.write(response)
 
-
 app = webapp2.WSGIApplication([
-    ('/', MainHandler),
-    ('/caesar', CaesarHandler)
+    ('/', MainHandler)
 ], debug=True)
